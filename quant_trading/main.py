@@ -6,6 +6,7 @@ import argparse
 sys.path.insert(0, os.path.abspath(".."))
 
 from quant_trading.datasets.stock_dataset import StockDataset
+from quant_trading.datasets import preprocessor
 
 
 def parse_args():
@@ -58,6 +59,12 @@ def run(args):
         print("Read from csv file...")
         df = stock_data.output_reader(f"data-{start_date}_{end_date}.csv")
         print(df.head())
+
+        X_train, y_train, X_test, y_test = preprocessor.run(df)
+        print(f"X_train: {type(X_train)}, y_train: {type(y_train)}")
+        print(X_train.shape, y_train.shape)  # (486, 977, 30, 1) (486, 977, 1)
+        print(f"X_test: {type(X_test)}, y_test: {type(y_test)}")
+        print(X_test.shape, y_test.shape)  # (486, 222, 30, 1) (486, 222, 1)
 
 
 if __name__ == "__main__":
