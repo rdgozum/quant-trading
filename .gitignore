@@ -103,3 +103,12 @@ ENV/
 
 # IDE settings
 .vscode/
+
+# data
+data/
+
+# results
+results/
+
+# experiments
+experiments/
