@@ -1,5 +1,13 @@
 import numpy as np
-from keras.layers import Dense, Dropout, Input, LSTM, RepeatVector, TimeDistributed
+from keras.layers import (
+    BatchNormalization,
+    Dense,
+    Dropout,
+    Input,
+    LSTM,
+    RepeatVector,
+    TimeDistributed,
+)
 from keras.models import Sequential
 from tensorflow import keras
 
@@ -54,6 +62,47 @@ class BasicAutoEncoder:
         model = Sequential()
         model.add(Input(shape=(timesteps,)))
         model.add(Dense(encoding_dim, activation="relu"))
+        model.add(Dense(timesteps, activation="sigmoid"))
+
+        self.model = model
+
+    def reshape(self, X_train, X_test):
+        return X_train, X_test
+
+    def train(
+        self,
+        X_train,
+        y_train,
+        X_test,
+        y_test,
+        epochs=100,
+        batch_size=128,
+        n=5,
+        shuffle=False,
+    ):
+        print(self.model.summary())
+
+        X_train, X_test = self.reshape(X_train, X_test)
+
+        self.model.compile(loss="mse", optimizer="adam")
+        self.model.fit(
+            X_train, X_train, epochs=epochs, batch_size=batch_size, shuffle=shuffle,
+        )
+
+        X_train_pred = self.model.predict(X_train)
+
+        model_utils.plot(X_train, X_train_pred, n)
+
+
+class DeepAutoEncoder:
+    def __init__(self, timesteps=30, input_dim=1, encoding_dim=16, drop_prob=0.2):
+        model = Sequential()
+        model.add(Input(shape=(timesteps,)))
+        model.add(Dense(32, activation="relu"))
+        model.add(BatchNormalization())
+        model.add(Dense(encoding_dim, activation="relu"))
+        model.add(Dense(32, activation="relu"))
+        model.add(BatchNormalization())
         model.add(Dense(timesteps, activation="sigmoid"))
 
         self.model = model

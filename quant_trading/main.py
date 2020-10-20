@@ -10,6 +10,7 @@ from quant_trading.datasets import preprocessor
 from quant_trading.models.autoencoders import (
     BasicAutoEncoder,
     LSTMAutoEncoder,
+    DeepAutoEncoder,
 )
 
 
@@ -96,6 +97,8 @@ def run(args):
     print("Start training...")
     if args.model == "basic_autoencoder":
         model = BasicAutoEncoder(timesteps=X_train.shape[2])
+    if args.model == "deep_autoencoder":
+        model = DeepAutoEncoder(timesteps=X_train.shape[2])
     if args.model == "lstm_autoencoder":
         model = LSTMAutoEncoder(timesteps=X_train.shape[2])
 
