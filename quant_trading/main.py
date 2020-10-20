@@ -7,6 +7,10 @@ sys.path.insert(0, os.path.abspath(".."))
 
 from quant_trading.datasets.stock_dataset import StockDataset
 from quant_trading.datasets import preprocessor
+from quant_trading.models.autoencoders import (
+    LSTMAutoEncoder,
+    SimpleAE,
+)
 
 
 def parse_args():
@@ -65,6 +69,10 @@ def run(args):
         print(X_train.shape, y_train.shape)  # (486, 977, 30, 1) (486, 977, 1)
         print(f"X_test: {type(X_test)}, y_test: {type(y_test)}")
         print(X_test.shape, y_test.shape)  # (486, 222, 30, 1) (486, 222, 1)
+
+    # model = LSTMAutoEncoder()
+    model = SimpleAE()
+    model.train(X_train[0], y_train[0], X_test[0], y_test[0])
 
 
 if __name__ == "__main__":
