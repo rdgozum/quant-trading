@@ -8,8 +8,8 @@ sys.path.insert(0, os.path.abspath(".."))
 from quant_trading.datasets.stock_dataset import StockDataset
 from quant_trading.datasets import preprocessor
 from quant_trading.models.autoencoders import (
+    BasicAutoEncoder,
     LSTMAutoEncoder,
-    SimpleAE,
 )
 
 
@@ -25,7 +25,7 @@ def parse_args():
         "--end-date",
         dest="end_date",
         default="2015-12-01",
-        help="extracts data until the specified end-date, (default: 2015-12-01)",
+        help="extracts data until the specified end-date (default: 2015-12-01)",
     )
     parser.add_argument(
         "--do-extract-save",
@@ -38,6 +38,29 @@ def parse_args():
         dest="do_extract_from_file",
         action="store_true",
         help="extracts the pulled range data from csv file",
+    )
+    parser.add_argument(
+        "--model",
+        dest="model",
+        default="basic_autoencoder",
+        help="the model architecture to be trained (default: basic_autoencoder)",
+    )
+    parser.add_argument(
+        "--epochs",
+        dest="epochs",
+        default=100,
+        type=int,
+        help="number of complete pass through the training data (default: 100)",
+    )
+    parser.add_argument(
+        "--batch-size",
+        dest="batch_size",
+        default=128,
+        type=int,
+        help="number of training examples utilized in one iteration (default: 128)",
+    )
+    parser.add_argument(
+        "--n", dest="n", type=int, help="number of windows to display",
     )
 
     return parser.parse_args()
@@ -66,13 +89,25 @@ def run(args):
 
         X_train, y_train, X_test, y_test = preprocessor.run(df)
         print(f"X_train: {type(X_train)}, y_train: {type(y_train)}")
-        print(X_train.shape, y_train.shape)  # (486, 977, 30, 1) (486, 977, 1)
+        print(X_train.shape, y_train.shape)  # (486, 977, 30) (486, 977)
         print(f"X_test: {type(X_test)}, y_test: {type(y_test)}")
-        print(X_test.shape, y_test.shape)  # (486, 222, 30, 1) (486, 222, 1)
+        print(X_test.shape, y_test.shape)  # (486, 222, 30) (486, 222)
 
-    # model = LSTMAutoEncoder()
-    model = SimpleAE()
-    model.train(X_train[0], y_train[0], X_test[0], y_test[0])
+    print("Start training...")
+    if args.model == "basic_autoencoder":
+        model = BasicAutoEncoder()
+    if args.model == "lstm_autoencoder":
+        model = LSTMAutoEncoder()
+
+    model.train(
+        X_train[0],
+        y_train[0],
+        X_test[0],
+        y_test[0],
+        epochs=args.epochs,
+        batch_size=args.batch_size,
+        n=args.n,
+    )
 
 
 if __name__ == "__main__":

@@ -3,8 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot(X_test, X_test_pred):
-    n = math.ceil(X_test.shape[0] / X_test.shape[1])
+def plot(X_test, X_test_pred, n=None):
+    if n is None:
+        n = math.ceil(X_test.shape[0] / X_test.shape[1])
     plt.figure()
 
     for i, idx in enumerate(list(np.arange(0, X_test.shape[0], X_test.shape[1]))):
@@ -25,4 +26,8 @@ def plot(X_test, X_test_pred):
             ax.get_yaxis().set_visible(False)
         plt.plot(X_test_pred[idx])
         ax.get_xaxis().set_visible(False)
+
+        if i == n - 1:
+            break
+
     plt.show()

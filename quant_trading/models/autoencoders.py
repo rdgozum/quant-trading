@@ -24,7 +24,17 @@ class LSTMAutoEncoder:
 
         return X_train, X_test
 
-    def train(self, X_train, y_train, X_test, y_test, epochs=100, batch_size=128):
+    def train(
+        self,
+        X_train,
+        y_train,
+        X_test,
+        y_test,
+        epochs=100,
+        batch_size=128,
+        n=5,
+        shuffle=False,
+    ):
         print(self.model.summary())
 
         X_train, X_test = self.reshape(X_train, X_test)
@@ -35,16 +45,16 @@ class LSTMAutoEncoder:
             X_train,
             epochs=epochs,
             batch_size=batch_size,
-            shuffle=False,
+            shuffle=shuffle,
             validation_data=(X_test, X_test),
         )
 
         X_train_pred = self.model.predict(X_train)
 
-        model_utils.plot(X_train, X_train_pred)
+        model_utils.plot(X_train, X_train_pred, n)
 
 
-class SimpleAE:
+class BasicAutoEncoder:
     def __init__(self, timesteps=30, input_dim=1, encoding_dim=16, drop_prob=0.2):
         model = Sequential()
         model.add(Input(shape=(timesteps,)))
@@ -56,7 +66,17 @@ class SimpleAE:
     def reshape(self, X_train, X_test):
         return X_train, X_test
 
-    def train(self, X_train, y_train, X_test, y_test, epochs=100, batch_size=128):
+    def train(
+        self,
+        X_train,
+        y_train,
+        X_test,
+        y_test,
+        epochs=100,
+        batch_size=128,
+        n=5,
+        shuffle=False,
+    ):
         print(self.model.summary())
 
         X_train, X_test = self.reshape(X_train, X_test)
@@ -67,10 +87,10 @@ class SimpleAE:
             X_train,
             epochs=epochs,
             batch_size=batch_size,
-            shuffle=False,
+            shuffle=shuffle,
             validation_data=(X_test, X_test),
         )
 
         X_train_pred = self.model.predict(X_train)
 
-        model_utils.plot(X_train, X_train_pred)
+        model_utils.plot(X_train, X_train_pred, n)
