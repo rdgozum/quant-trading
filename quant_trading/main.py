@@ -89,15 +89,15 @@ def run(args):
 
         X_train, y_train, X_test, y_test = preprocessor.run(df)
         print(f"X_train: {type(X_train)}, y_train: {type(y_train)}")
-        print(X_train.shape, y_train.shape)  # (486, 977, 30) (486, 977)
+        print(X_train.shape, y_train.shape)
         print(f"X_test: {type(X_test)}, y_test: {type(y_test)}")
-        print(X_test.shape, y_test.shape)  # (486, 222, 30) (486, 222)
+        print(X_test.shape, y_test.shape)
 
     print("Start training...")
     if args.model == "basic_autoencoder":
-        model = BasicAutoEncoder()
+        model = BasicAutoEncoder(timesteps=X_train.shape[2])
     if args.model == "lstm_autoencoder":
-        model = LSTMAutoEncoder()
+        model = LSTMAutoEncoder(timesteps=X_train.shape[2])
 
     model.train(
         X_train[0],

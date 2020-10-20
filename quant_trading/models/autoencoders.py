@@ -41,12 +41,7 @@ class LSTMAutoEncoder:
 
         self.model.compile(loss="mse", optimizer="adam")
         self.model.fit(
-            X_train,
-            X_train,
-            epochs=epochs,
-            batch_size=batch_size,
-            shuffle=shuffle,
-            validation_data=(X_test, X_test),
+            X_train, X_train, epochs=epochs, batch_size=batch_size, shuffle=shuffle,
         )
 
         X_train_pred = self.model.predict(X_train)
@@ -83,12 +78,7 @@ class BasicAutoEncoder:
 
         self.model.compile(loss="mse", optimizer="adam")
         self.model.fit(
-            X_train,
-            X_train,
-            epochs=epochs,
-            batch_size=batch_size,
-            shuffle=shuffle,
-            validation_data=(X_test, X_test),
+            X_train, X_train, epochs=epochs, batch_size=batch_size, shuffle=shuffle,
         )
 
         X_train_pred = self.model.predict(X_train)

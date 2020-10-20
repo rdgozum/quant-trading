@@ -50,8 +50,7 @@ def run(df):
     df_train, df_test = reshape(df_train, df_test)
 
     # Temporalize
-    timesteps = 30
-    X_train, y_train = temporalize(df_train, timesteps)
-    X_test, y_test = temporalize(df_test, timesteps)
+    X_train, y_train = temporalize(df_train, timesteps=df_train.shape[1] - 1)
+    X_test, y_test = temporalize(df_test, timesteps=df_train.shape[1] - 1)
 
     return X_train, y_train, X_test, y_test
