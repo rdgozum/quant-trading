@@ -3,7 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot(X, X_pred, n=None):
+
+def plot_autoencoder(X, X_pred, n, filename):
     if n is None:
         n = math.ceil(X.shape[0] / X.shape[1])
     plt.figure()

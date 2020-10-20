@@ -1,4 +1,5 @@
 import numpy as np
+from abc import ABC, abstractmethod
 from keras.layers import (
     BatchNormalization,
     Dense,
@@ -11,10 +12,30 @@ from keras.layers import (
 from keras.models import Sequential
 from tensorflow import keras
 
-from quant_trading.models import model_utils
+from quant_trading.models import output_writer
 
 
-class LSTMAutoEncoder:
+class AutoEncoder(ABC):
+    @abstractmethod
+    def train(
+        self, X_train, y_train, X_test, y_test, epochs, batch_size, n, shuffle,
+    ):
+        pass
+
+    @staticmethod
+    def transform(X_train, X_test, enable=False):
+        if enable:
+            X_train = np.reshape(X_train, X_train.shape + (1,))
+            X_test = np.reshape(X_test, X_test.shape + (1,))
+
+        return X_train, X_test
+
+    @staticmethod
+    def plot(X_train, X_train_pred, n, filename):
+        output_writer.plot_autoencoder(X_train, X_train_pred, n, filename)
+
+
+class LSTMAutoEncoder(AutoEncoder):
     def __init__(self, timesteps=30, input_dim=1, encoding_dim=16, drop_prob=0.2):
         model = Sequential()
         model.add(LSTM(units=encoding_dim, input_shape=(timesteps, input_dim),))
@@ -25,12 +46,7 @@ class LSTMAutoEncoder:
         model.add(TimeDistributed(Dense(units=input_dim)))
 
         self.model = model
-
-    def reshape(self, X_train, X_test):
-        X_train = np.reshape(X_train, X_train.shape + (1,))
-        X_test = np.reshape(X_test, X_test.shape + (1,))
-
-        return X_train, X_test
+        self.model.summary()
 
     def train(
         self,
@@ -43,9 +59,7 @@ class LSTMAutoEncoder:
         n=5,
         shuffle=False,
     ):
-        print(self.model.summary())
-
-        X_train, X_test = self.reshape(X_train, X_test)
+        X_train, X_test = self.transform(X_train, X_test, enable=True)
 
         self.model.compile(loss="mse", optimizer="adam")
         self.model.fit(
@@ -54,10 +68,25 @@ class LSTMAutoEncoder:
 
         X_train_pred = self.model.predict(X_train)
 
+<<<<<<< HEAD
         model_utils.plot(X_train, X_train_pred, n)
+=======
+        # Plot the results
+        self.plot(X_train, X_train_pred, n, filename="lstm_autoencoder")
+
+    def pull_bottleneck(self, X_train, X_test):
+        standalone_encoder = Model(
+            inputs=self.model.inputs,
+            outputs=self.model.layers[self.BOTTLENECK_LAYER].output,
+        )
+
+        X_train_features = standalone_encoder.predict(X_train)
+
+        return X_train_features
+>>>>>>> 6e207a4... Rename
 
 
-class BasicAutoEncoder:
+class BasicAutoEncoder(AutoEncoder):
     def __init__(self, timesteps=30, input_dim=1, encoding_dim=16, drop_prob=0.2):
         model = Sequential()
         model.add(Input(shape=(timesteps,)))
@@ -65,9 +94,7 @@ class BasicAutoEncoder:
         model.add(Dense(timesteps, activation="sigmoid"))
 
         self.model = model
-
-    def reshape(self, X_train, X_test):
-        return X_train, X_test
+        self.model.summary()
 
     def train(
         self,
@@ -80,9 +107,7 @@ class BasicAutoEncoder:
         n=5,
         shuffle=False,
     ):
-        print(self.model.summary())
-
-        X_train, X_test = self.reshape(X_train, X_test)
+        X_train, X_test = self.transform(X_train, X_test)
 
         self.model.compile(loss="mse", optimizer="adam")
         self.model.fit(
@@ -91,10 +116,25 @@ class BasicAutoEncoder:
 
         X_train_pred = self.model.predict(X_train)
 
+<<<<<<< HEAD
         model_utils.plot(X_train, X_train_pred, n)
+=======
+        # Plot the results
+        self.plot(X_train, X_train_pred, n, filename="basic_autoencoder")
+
+    def pull_bottleneck(self, X_train, X_test):
+        standalone_encoder = Model(
+            inputs=self.model.inputs,
+            outputs=self.model.layers[self.BOTTLENECK_LAYER].output,
+        )
+
+        X_train_features = standalone_encoder.predict(X_train)
+
+        return X_train_features
+>>>>>>> 6e207a4... Rename
 
 
-class DeepAutoEncoder:
+class DeepAutoEncoder(AutoEncoder):
     def __init__(self, timesteps=30, input_dim=1, encoding_dim=16, drop_prob=0.2):
         model = Sequential()
         model.add(Input(shape=(timesteps,)))
@@ -106,9 +146,7 @@ class DeepAutoEncoder:
         model.add(Dense(timesteps, activation="sigmoid"))
 
         self.model = model
-
-    def reshape(self, X_train, X_test):
-        return X_train, X_test
+        self.model.summary()
 
     def train(
         self,
@@ -121,9 +159,7 @@ class DeepAutoEncoder:
         n=5,
         shuffle=False,
     ):
-        print(self.model.summary())
-
-        X_train, X_test = self.reshape(X_train, X_test)
+        X_train, X_test = self.transform(X_train, X_test)
 
         self.model.compile(loss="mse", optimizer="adam")
         self.model.fit(
@@ -132,4 +168,19 @@ class DeepAutoEncoder:
 
         X_train_pred = self.model.predict(X_train)
 
+<<<<<<< HEAD
         model_utils.plot(X_train, X_train_pred, n)
+=======
+        # Plot the results
+        self.plot(X_train, X_train_pred, n, filename="deep_autoencoder")
+
+    def pull_bottleneck(self, X_train, X_test):
+        standalone_encoder = Model(
+            inputs=self.model.inputs,
+            outputs=self.model.layers[self.BOTTLENECK_LAYER].output,
+        )
+
+        X_train_features = standalone_encoder.predict(X_train)
+
+        return X_train_features
+>>>>>>> 6e207a4... Rename
