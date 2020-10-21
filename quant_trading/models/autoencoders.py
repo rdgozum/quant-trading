@@ -56,7 +56,7 @@ class LSTMAutoEncoder(AutoEncoder):
         y_test,
         epochs=100,
         batch_size=128,
-        n=5,
+        n=None,
         shuffle=False,
     ):
         X_train, X_test = self.transform(X_train, X_test, enable=True)
@@ -68,6 +68,7 @@ class LSTMAutoEncoder(AutoEncoder):
 
         X_train_pred = self.model.predict(X_train)
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         model_utils.plot(X_train, X_train_pred, n)
 =======
@@ -84,6 +85,10 @@ class LSTMAutoEncoder(AutoEncoder):
 
         return X_train_features
 >>>>>>> 6e207a4... Rename
+=======
+        # Plot the results
+        model_utils.plot(X_train, X_train_pred, n, filename="lstm_autoencoder")
+>>>>>>> 5ed2667... Save the plot to file
 
 
 class BasicAutoEncoder(AutoEncoder):
@@ -104,7 +109,7 @@ class BasicAutoEncoder(AutoEncoder):
         y_test,
         epochs=100,
         batch_size=128,
-        n=5,
+        n=None,
         shuffle=False,
     ):
         X_train, X_test = self.transform(X_train, X_test)
@@ -116,6 +121,7 @@ class BasicAutoEncoder(AutoEncoder):
 
         X_train_pred = self.model.predict(X_train)
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         model_utils.plot(X_train, X_train_pred, n)
 =======
@@ -132,6 +138,10 @@ class BasicAutoEncoder(AutoEncoder):
 
         return X_train_features
 >>>>>>> 6e207a4... Rename
+=======
+        # Plot the results
+        model_utils.plot(X_train, X_train_pred, n, filename="basic_autoencoder")
+>>>>>>> 5ed2667... Save the plot to file
 
 
 class DeepAutoEncoder(AutoEncoder):
@@ -156,7 +166,7 @@ class DeepAutoEncoder(AutoEncoder):
         y_test,
         epochs=100,
         batch_size=128,
-        n=5,
+        n=None,
         shuffle=False,
     ):
         X_train, X_test = self.transform(X_train, X_test)
@@ -168,6 +178,7 @@ class DeepAutoEncoder(AutoEncoder):
 
         X_train_pred = self.model.predict(X_train)
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         model_utils.plot(X_train, X_train_pred, n)
 =======
@@ -184,3 +195,7 @@ class DeepAutoEncoder(AutoEncoder):
 
         return X_train_features
 >>>>>>> 6e207a4... Rename
+=======
+        # Plot the results
+        model_utils.plot(X_train, X_train_pred, n, filename="deep_autoencoder")
+>>>>>>> 5ed2667... Save the plot to file

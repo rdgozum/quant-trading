@@ -2,6 +2,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
+from quant_trading import settings
 
 
 def plot_autoencoder(X, X_pred, n, filename):
@@ -31,4 +32,6 @@ def plot_autoencoder(X, X_pred, n, filename):
         if i == n - 1:
             break
 
-    plt.show()
+    path = settings.results(filename)
+    plt.savefig(path, bbox_inches="tight", dpi=200)
+    plt.close()
