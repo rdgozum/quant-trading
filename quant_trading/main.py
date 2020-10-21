@@ -112,6 +112,11 @@ def run(args):
         n=args.n,
     )
 
+    X_train_features = model.pull_bottleneck(X_train[0], X_test[0])
+    print("X_train_features")
+    print(X_train_features.shape)
+    print(X_train_features)
+
 
 if __name__ == "__main__":
     args = parse_args()

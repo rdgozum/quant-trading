@@ -9,7 +9,7 @@ from keras.layers import (
     RepeatVector,
     TimeDistributed,
 )
-from keras.models import Sequential
+from keras.models import Sequential, Model
 from tensorflow import keras
 
 from quant_trading.models import output_writer
@@ -20,6 +20,10 @@ class AutoEncoder(ABC):
     def train(
         self, X_train, y_train, X_test, y_test, epochs, batch_size, n, shuffle,
     ):
+        pass
+
+    @abstractmethod
+    def pull_bottleneck(self, X_train, X_test):
         pass
 
     @staticmethod
@@ -37,6 +41,8 @@ class AutoEncoder(ABC):
 
 class LSTMAutoEncoder(AutoEncoder):
     def __init__(self, timesteps=30, input_dim=1, encoding_dim=16, drop_prob=0.2):
+        self.BOTTLENECK_LAYER = 0
+
         model = Sequential()
         model.add(LSTM(units=encoding_dim, input_shape=(timesteps, input_dim),))
         model.add(Dropout(rate=drop_prob))
@@ -68,10 +74,6 @@ class LSTMAutoEncoder(AutoEncoder):
 
         X_train_pred = self.model.predict(X_train)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-        model_utils.plot(X_train, X_train_pred, n)
-=======
         # Plot the results
         self.plot(X_train, X_train_pred, n, filename="lstm_autoencoder")
 
@@ -84,15 +86,12 @@ class LSTMAutoEncoder(AutoEncoder):
         X_train_features = standalone_encoder.predict(X_train)
 
         return X_train_features
->>>>>>> 6e207a4... Rename
-=======
-        # Plot the results
-        model_utils.plot(X_train, X_train_pred, n, filename="lstm_autoencoder")
->>>>>>> 5ed2667... Save the plot to file
 
 
 class BasicAutoEncoder(AutoEncoder):
     def __init__(self, timesteps=30, input_dim=1, encoding_dim=16, drop_prob=0.2):
+        self.BOTTLENECK_LAYER = 0
+
         model = Sequential()
         model.add(Input(shape=(timesteps,)))
         model.add(Dense(encoding_dim, activation="relu"))
@@ -121,10 +120,6 @@ class BasicAutoEncoder(AutoEncoder):
 
         X_train_pred = self.model.predict(X_train)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-        model_utils.plot(X_train, X_train_pred, n)
-=======
         # Plot the results
         self.plot(X_train, X_train_pred, n, filename="basic_autoencoder")
 
@@ -137,15 +132,12 @@ class BasicAutoEncoder(AutoEncoder):
         X_train_features = standalone_encoder.predict(X_train)
 
         return X_train_features
->>>>>>> 6e207a4... Rename
-=======
-        # Plot the results
-        model_utils.plot(X_train, X_train_pred, n, filename="basic_autoencoder")
->>>>>>> 5ed2667... Save the plot to file
 
 
 class DeepAutoEncoder(AutoEncoder):
     def __init__(self, timesteps=30, input_dim=1, encoding_dim=16, drop_prob=0.2):
+        self.BOTTLENECK_LAYER = 2
+
         model = Sequential()
         model.add(Input(shape=(timesteps,)))
         model.add(Dense(32, activation="relu"))
@@ -178,10 +170,6 @@ class DeepAutoEncoder(AutoEncoder):
 
         X_train_pred = self.model.predict(X_train)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-        model_utils.plot(X_train, X_train_pred, n)
-=======
         # Plot the results
         self.plot(X_train, X_train_pred, n, filename="deep_autoencoder")
 
@@ -194,8 +182,3 @@ class DeepAutoEncoder(AutoEncoder):
         X_train_features = standalone_encoder.predict(X_train)
 
         return X_train_features
->>>>>>> 6e207a4... Rename
-=======
-        # Plot the results
-        model_utils.plot(X_train, X_train_pred, n, filename="deep_autoencoder")
->>>>>>> 5ed2667... Save the plot to file
