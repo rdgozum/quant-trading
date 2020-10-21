@@ -1,5 +1,4 @@
 import numpy as np
-from abc import ABC, abstractmethod
 from keras.layers import (
     BatchNormalization,
     Dense,
@@ -15,16 +14,50 @@ from tensorflow import keras
 from quant_trading.models import output_writer
 
 
-class AutoEncoder(ABC):
-    @abstractmethod
+class AutoEncoder:
     def train(
-        self, X_train, y_train, X_test, y_test, epochs, batch_size, n, shuffle,
+        self,
+        X_train,
+        y_train,
+        X_test,
+        y_test,
+        epochs=100,
+        batch_size=128,
+        n=None,
+        shuffle=False,
     ):
-        pass
+        # Transform the input
+        X_train, X_test = self.transform(X_train, X_test, self.enable)
 
-    @abstractmethod
-    def pull_bottleneck(self, X_train, X_test):
-        pass
+        # Train the model
+        self.model.compile(loss="mse", optimizer="adam")
+        self.model.fit(
+            X_train, X_train, epochs=epochs, batch_size=batch_size, shuffle=shuffle,
+        )
+
+        # Evaluate the model
+        X_train_pred = self.model.predict(X_train)
+
+        # Plot the results
+        self.plot(X_train, X_train_pred, n, self.model_name)
+
+    def bottleneck(self, X_train, X_test, bottleneck_layer):
+        standalone_encoder = Model(
+            inputs=self.model.inputs,
+            outputs=self.model.layers[bottleneck_layer].output,
+        )
+
+        X_train_features = standalone_encoder.predict(X_train)
+
+        return X_train_features
+
+    def reset_weights(self):
+        session = K.get_session()
+        for layer in self.model.layers:
+            if hasattr(layer, "kernel_initializer"):
+                layer.kernel.initializer.run(session=session)
+            if hasattr(layer, "bias_initializer"):
+                layer.bias.initializer.run(session=session)
 
     @staticmethod
     def transform(X_train, X_test, enable=False):
@@ -41,7 +74,9 @@ class AutoEncoder(ABC):
 
 class LSTMAutoEncoder(AutoEncoder):
     def __init__(self, timesteps=30, input_dim=1, encoding_dim=16, drop_prob=0.2):
-        self.BOTTLENECK_LAYER = 0
+        self.model_name = "LSTM_AutoEncoder"
+        self.bottleneck_layer = 0
+        self.enable = True
 
         model = Sequential()
         model.add(LSTM(units=encoding_dim, input_shape=(timesteps, input_dim),))
@@ -54,43 +89,12 @@ class LSTMAutoEncoder(AutoEncoder):
         self.model = model
         self.model.summary()
 
-    def train(
-        self,
-        X_train,
-        y_train,
-        X_test,
-        y_test,
-        epochs=100,
-        batch_size=128,
-        n=None,
-        shuffle=False,
-    ):
-        X_train, X_test = self.transform(X_train, X_test, enable=True)
-
-        self.model.compile(loss="mse", optimizer="adam")
-        self.model.fit(
-            X_train, X_train, epochs=epochs, batch_size=batch_size, shuffle=shuffle,
-        )
-
-        X_train_pred = self.model.predict(X_train)
-
-        # Plot the results
-        self.plot(X_train, X_train_pred, n, filename="lstm_autoencoder")
-
-    def pull_bottleneck(self, X_train, X_test):
-        standalone_encoder = Model(
-            inputs=self.model.inputs,
-            outputs=self.model.layers[self.BOTTLENECK_LAYER].output,
-        )
-
-        X_train_features = standalone_encoder.predict(X_train)
-
-        return X_train_features
-
 
 class BasicAutoEncoder(AutoEncoder):
     def __init__(self, timesteps=30, input_dim=1, encoding_dim=16, drop_prob=0.2):
-        self.BOTTLENECK_LAYER = 0
+        self.model_name = "Basic_AutoEncoder"
+        self.bottleneck_layer = 0
+        self.enable = False
 
         model = Sequential()
         model.add(Input(shape=(timesteps,)))
@@ -99,44 +103,13 @@ class BasicAutoEncoder(AutoEncoder):
 
         self.model = model
         self.model.summary()
-
-    def train(
-        self,
-        X_train,
-        y_train,
-        X_test,
-        y_test,
-        epochs=100,
-        batch_size=128,
-        n=None,
-        shuffle=False,
-    ):
-        X_train, X_test = self.transform(X_train, X_test)
-
-        self.model.compile(loss="mse", optimizer="adam")
-        self.model.fit(
-            X_train, X_train, epochs=epochs, batch_size=batch_size, shuffle=shuffle,
-        )
-
-        X_train_pred = self.model.predict(X_train)
-
-        # Plot the results
-        self.plot(X_train, X_train_pred, n, filename="basic_autoencoder")
-
-    def pull_bottleneck(self, X_train, X_test):
-        standalone_encoder = Model(
-            inputs=self.model.inputs,
-            outputs=self.model.layers[self.BOTTLENECK_LAYER].output,
-        )
-
-        X_train_features = standalone_encoder.predict(X_train)
-
-        return X_train_features
 
 
 class DeepAutoEncoder(AutoEncoder):
     def __init__(self, timesteps=30, input_dim=1, encoding_dim=16, drop_prob=0.2):
-        self.BOTTLENECK_LAYER = 2
+        self.model_name = "Deep_AutoEncoder"
+        self.bottleneck_layer = 2
+        self.enable = False
 
         model = Sequential()
         model.add(Input(shape=(timesteps,)))
@@ -149,36 +122,3 @@ class DeepAutoEncoder(AutoEncoder):
 
         self.model = model
         self.model.summary()
-
-    def train(
-        self,
-        X_train,
-        y_train,
-        X_test,
-        y_test,
-        epochs=100,
-        batch_size=128,
-        n=None,
-        shuffle=False,
-    ):
-        X_train, X_test = self.transform(X_train, X_test)
-
-        self.model.compile(loss="mse", optimizer="adam")
-        self.model.fit(
-            X_train, X_train, epochs=epochs, batch_size=batch_size, shuffle=shuffle,
-        )
-
-        X_train_pred = self.model.predict(X_train)
-
-        # Plot the results
-        self.plot(X_train, X_train_pred, n, filename="deep_autoencoder")
-
-    def pull_bottleneck(self, X_train, X_test):
-        standalone_encoder = Model(
-            inputs=self.model.inputs,
-            outputs=self.model.layers[self.BOTTLENECK_LAYER].output,
-        )
-
-        X_train_features = standalone_encoder.predict(X_train)
-
-        return X_train_features
