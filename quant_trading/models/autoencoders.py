@@ -1,4 +1,5 @@
 import numpy as np
+import random
 from keras.layers import (
     BatchNormalization,
     Dense,
@@ -9,8 +10,6 @@ from keras.layers import (
     TimeDistributed,
 )
 from keras.models import Sequential, Model
-from tensorflow import keras
-
 from quant_trading.models import output_writer
 
 
@@ -52,12 +51,21 @@ class AutoEncoder:
         return X_train_features
 
     def reset_weights(self):
-        session = K.get_session()
-        for layer in self.model.layers:
-            if hasattr(layer, "kernel_initializer"):
-                layer.kernel.initializer.run(session=session)
-            if hasattr(layer, "bias_initializer"):
-                layer.bias.initializer.run(session=session)
+        for i, layer in enumerate(self.model.layers):
+            if hasattr(self.model.layers[i], "kernel_initializer") and hasattr(
+                self.model.layers[i], "bias_initializer"
+            ):
+                weight_initializer = self.model.layers[i].kernel_initializer
+                bias_initializer = self.model.layers[i].bias_initializer
+
+                old_weights, old_biases = self.model.layers[i].get_weights()
+
+                self.model.layers[i].set_weights(
+                    [
+                        weight_initializer(shape=old_weights.shape),
+                        bias_initializer(shape=old_biases.shape),
+                    ]
+                )
 
     @staticmethod
     def transform(X_train, X_test, enable=False):
