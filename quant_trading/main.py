@@ -2,6 +2,7 @@
 import os
 import sys
 import argparse
+import pickle
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -12,6 +13,8 @@ from quant_trading.models.autoencoders import (
     LSTMAutoEncoder,
     DeepAutoEncoder,
 )
+
+from quant_trading import settings
 
 
 def parse_args():
@@ -117,24 +120,34 @@ def run(args):
         if args.model == "lstm_autoencoder":
             model = LSTMAutoEncoder(timesteps=X_train.shape[2])
 
-        model.train(
-            X_train[0],
-            y_train[0],
-            X_test[0],
-            y_test[0],
-            epochs=args.epochs,
-            batch_size=args.batch_size,
-            n=args.n,
-        )
+        features = []
+        for i in range(X_train.shape[0]):
+            model.train(
+                X_train[i],
+                y_train[i],
+                X_test[i],
+                y_test[i],
+                epochs=args.epochs,
+                batch_size=args.batch_size,
+                n=args.n,
+            )
+            X_train_features = model.bottleneck(
+                X_train[i], X_test[i], model.bottleneck_layer
+            )
+            model.reset_weights()
 
-        X_train_features = model.pull_bottleneck(X_train[0], X_test[0])
-        print("X_train_features")
-        print(X_train_features.shape)
-        print(X_train_features)
+            features.append(X_train_features)
+
+        filename = args.model
+        with open(settings.results(f"{filename}-features.pkl"), "wb") as pickle_file:
+            pickle.dump(features, pickle_file)
 
     # Clustering
     if args.do_clustering:
-        pass
+        filename = args.model
+        with open(settings.results(f"{filename}-features.pkl"), "rb") as pickle_file:
+            list = pickle.load(pickle_file)
+            print(len(list))
 
 
 if __name__ == "__main__":

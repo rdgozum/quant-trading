@@ -82,7 +82,7 @@ class AutoEncoder:
 
 class LSTMAutoEncoder(AutoEncoder):
     def __init__(self, timesteps=30, input_dim=1, encoding_dim=16, drop_prob=0.2):
-        self.model_name = "LSTM_AutoEncoder"
+        self.model_name = "lstm_autoencoder"
         self.bottleneck_layer = 0
         self.enable = True
 
@@ -100,7 +100,7 @@ class LSTMAutoEncoder(AutoEncoder):
 
 class BasicAutoEncoder(AutoEncoder):
     def __init__(self, timesteps=30, input_dim=1, encoding_dim=16, drop_prob=0.2):
-        self.model_name = "Basic_AutoEncoder"
+        self.model_name = "basic_autoencoder"
         self.bottleneck_layer = 0
         self.enable = False
 
@@ -115,7 +115,7 @@ class BasicAutoEncoder(AutoEncoder):
 
 class DeepAutoEncoder(AutoEncoder):
     def __init__(self, timesteps=30, input_dim=1, encoding_dim=16, drop_prob=0.2):
-        self.model_name = "Deep_AutoEncoder"
+        self.model_name = "deep_autoencoder"
         self.bottleneck_layer = 2
         self.enable = False
 
