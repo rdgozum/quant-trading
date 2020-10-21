@@ -41,6 +41,18 @@ def parse_args():
         help="extracts the pulled range data from csv file",
     )
     parser.add_argument(
+        "--do-training",
+        dest="do_training",
+        action="store_true",
+        help="perform model training",
+    )
+    parser.add_argument(
+        "--do-clustering",
+        dest="do_clustering",
+        action="store_true",
+        help="perform clustering",
+    )
+    parser.add_argument(
         "--model",
         dest="model",
         default="basic_autoencoder",
@@ -72,6 +84,7 @@ def run(args):
     start_date = args.start_date
     end_date = args.end_date
 
+    # Dataset
     if args.do_extract_save:
         symbols = None
         indicators = ["Close"]
@@ -94,28 +107,34 @@ def run(args):
         print(f"X_test: {type(X_test)}, y_test: {type(y_test)}")
         print(X_test.shape, y_test.shape)
 
-    print("Start training...")
-    if args.model == "basic_autoencoder":
-        model = BasicAutoEncoder(timesteps=X_train.shape[2])
-    if args.model == "deep_autoencoder":
-        model = DeepAutoEncoder(timesteps=X_train.shape[2])
-    if args.model == "lstm_autoencoder":
-        model = LSTMAutoEncoder(timesteps=X_train.shape[2])
+    # Feature Extraction
+    if args.do_training:
+        print("Start training...")
+        if args.model == "basic_autoencoder":
+            model = BasicAutoEncoder(timesteps=X_train.shape[2])
+        if args.model == "deep_autoencoder":
+            model = DeepAutoEncoder(timesteps=X_train.shape[2])
+        if args.model == "lstm_autoencoder":
+            model = LSTMAutoEncoder(timesteps=X_train.shape[2])
 
-    model.train(
-        X_train[0],
-        y_train[0],
-        X_test[0],
-        y_test[0],
-        epochs=args.epochs,
-        batch_size=args.batch_size,
-        n=args.n,
-    )
+        model.train(
+            X_train[0],
+            y_train[0],
+            X_test[0],
+            y_test[0],
+            epochs=args.epochs,
+            batch_size=args.batch_size,
+            n=args.n,
+        )
 
-    X_train_features = model.pull_bottleneck(X_train[0], X_test[0])
-    print("X_train_features")
-    print(X_train_features.shape)
-    print(X_train_features)
+        X_train_features = model.pull_bottleneck(X_train[0], X_test[0])
+        print("X_train_features")
+        print(X_train_features.shape)
+        print(X_train_features)
+
+    # Clustering
+    if args.do_clustering:
+        pass
 
 
 if __name__ == "__main__":
