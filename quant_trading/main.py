@@ -4,6 +4,7 @@ import sys
 import argparse
 import pickle
 
+
 sys.path.insert(0, os.path.abspath(".."))
 
 from quant_trading.datasets.stock_dataset import StockDataset
@@ -13,6 +14,7 @@ from quant_trading.models.autoencoders import (
     LSTMAutoEncoder,
     DeepAutoEncoder,
 )
+from quant_trading.visualization.clustering import DBSCANClustering
 
 from quant_trading import settings
 
@@ -145,8 +147,10 @@ def run(args):
     if args.do_clustering:
         filename = args.model
         with open(settings.results(f"{filename}-features.pkl"), "rb") as pickle_file:
-            list = pickle.load(pickle_file)
-            print(len(list))
+            features = pickle.load(pickle_file)
+
+        clustering = DBSCANClustering()
+        clustering.run(features)
 
 
 if __name__ == "__main__":
