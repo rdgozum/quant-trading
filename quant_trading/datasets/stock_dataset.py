@@ -45,11 +45,17 @@ class StockDataset:
 
         list = []
         for symbol in symbols:
-            symbol_df = dr.DataReader(symbol, "yahoo", start_date, end_date)[indicators]
-            symbol_df.columns = [symbol + " " + i for i in indicators]
-            list.append(symbol_df)
+            try:
+                symbol = symbol.replace(".", "-")
+                symbol_df = dr.DataReader(symbol, "yahoo", start_date, end_date)[
+                    indicators
+                ]
+                symbol_df.columns = [symbol + " " + i for i in indicators]
+                list.append(symbol_df)
 
-            df = pd.concat(list, axis=1)
+                df = pd.concat(list, axis=1)
+            except:
+                pass
 
         df.dropna(axis="columns", thresh=df.shape[0] * drop_threshold, inplace=True)
         df.sort_index(axis="columns", inplace=True)
