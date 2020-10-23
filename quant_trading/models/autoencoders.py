@@ -8,14 +8,19 @@ from keras.layers import (
     LSTM,
     RepeatVector,
     TimeDistributed,
+    LeakyReLU,
 )
 from keras.models import Sequential, Model
+from keras.optimizers import Adam
+from keras.initializers import GlorotUniform, Zeros
+
 from quant_trading.models import output_writer
 
 
 class AutoEncoder:
     def train(
         self,
+        i,
         X_train,
         y_train,
         X_test,
@@ -29,7 +34,7 @@ class AutoEncoder:
         X_train, X_test = self.transform(X_train, X_test, self.enable)
 
         # Train the model
-        self.model.compile(loss="mse", optimizer="adam")
+        self.model.compile(loss="mse", optimizer=Adam(learning_rate=0.005))
         self.model.fit(
             X_train, X_train, epochs=epochs, batch_size=batch_size, shuffle=shuffle,
         )
@@ -38,15 +43,17 @@ class AutoEncoder:
         X_train_pred = self.model.predict(X_train)
 
         # Plot the results
-        self.plot(X_train, X_train_pred, n, self.model_name)
+        filename = self.model_name + "-" + str(i)
+        self.plot(X_train, X_train_pred, n, filename)
 
-    def bottleneck(self, X_train, X_test, bottleneck_layer):
+    def bottleneck(self, X_train, X_test):
         standalone_encoder = Model(
             inputs=self.model.inputs,
-            outputs=self.model.layers[bottleneck_layer].output,
+            outputs=self.model.layers[self.bottleneck_layer].output,
         )
 
         X_train_features = standalone_encoder.predict(X_train)
+        X_train_features = X_train_features.squeeze()
 
         return X_train_features
 
@@ -55,9 +62,8 @@ class AutoEncoder:
             if hasattr(self.model.layers[i], "kernel_initializer") and hasattr(
                 self.model.layers[i], "bias_initializer"
             ):
-                weight_initializer = self.model.layers[i].kernel_initializer
-                bias_initializer = self.model.layers[i].bias_initializer
-
+                weight_initializer = GlorotUniform()
+                bias_initializer = Zeros()
                 old_weights, old_biases = self.model.layers[i].get_weights()
 
                 self.model.layers[i].set_weights(
@@ -81,7 +87,7 @@ class AutoEncoder:
 
 
 class LSTMAutoEncoder(AutoEncoder):
-    def __init__(self, timesteps=30, input_dim=1, encoding_dim=16, drop_prob=0.2):
+    def __init__(self, timesteps=30, input_dim=1, encoding_dim=8, drop_prob=0.3):
         self.model_name = "lstm_autoencoder"
         self.bottleneck_layer = 0
         self.enable = True
@@ -99,14 +105,14 @@ class LSTMAutoEncoder(AutoEncoder):
 
 
 class BasicAutoEncoder(AutoEncoder):
-    def __init__(self, timesteps=30, input_dim=1, encoding_dim=16, drop_prob=0.2):
+    def __init__(self, timesteps=30, input_dim=1, encoding_dim=8, drop_prob=0.3):
         self.model_name = "basic_autoencoder"
         self.bottleneck_layer = 0
         self.enable = False
 
         model = Sequential()
         model.add(Input(shape=(timesteps,)))
-        model.add(Dense(encoding_dim, activation="relu"))
+        model.add(Dense(encoding_dim, activation=LeakyReLU()))
         model.add(Dense(timesteps, activation="sigmoid"))
 
         self.model = model
@@ -114,17 +120,17 @@ class BasicAutoEncoder(AutoEncoder):
 
 
 class DeepAutoEncoder(AutoEncoder):
-    def __init__(self, timesteps=30, input_dim=1, encoding_dim=16, drop_prob=0.2):
+    def __init__(self, timesteps=30, input_dim=1, encoding_dim=8, drop_prob=0.3):
         self.model_name = "deep_autoencoder"
         self.bottleneck_layer = 2
         self.enable = False
 
         model = Sequential()
         model.add(Input(shape=(timesteps,)))
-        model.add(Dense(32, activation="relu"))
+        model.add(Dense(32, activation=LeakyReLU()))
         model.add(BatchNormalization())
-        model.add(Dense(encoding_dim, activation="relu"))
-        model.add(Dense(32, activation="relu"))
+        model.add(Dense(encoding_dim, activation=LeakyReLU()))
+        model.add(Dense(32, activation=LeakyReLU()))
         model.add(BatchNormalization())
         model.add(Dense(timesteps, activation="sigmoid"))
 
