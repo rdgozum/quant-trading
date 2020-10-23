@@ -8,6 +8,7 @@ from keras.layers import (
     LSTM,
     RepeatVector,
     TimeDistributed,
+    LeakyReLU,
 )
 from keras.models import Sequential, Model
 from keras.optimizers import Adam
@@ -111,7 +112,7 @@ class BasicAutoEncoder(AutoEncoder):
 
         model = Sequential()
         model.add(Input(shape=(timesteps,)))
-        model.add(Dense(encoding_dim, activation="relu"))
+        model.add(Dense(encoding_dim, activation=LeakyReLU()))
         model.add(Dense(timesteps, activation="sigmoid"))
 
         self.model = model
@@ -126,10 +127,10 @@ class DeepAutoEncoder(AutoEncoder):
 
         model = Sequential()
         model.add(Input(shape=(timesteps,)))
-        model.add(Dense(32, activation="relu"))
+        model.add(Dense(32, activation=LeakyReLU()))
         model.add(BatchNormalization())
-        model.add(Dense(encoding_dim, activation="relu"))
-        model.add(Dense(32, activation="relu"))
+        model.add(Dense(encoding_dim, activation=LeakyReLU()))
+        model.add(Dense(32, activation=LeakyReLU()))
         model.add(BatchNormalization())
         model.add(Dense(timesteps, activation="sigmoid"))
 
