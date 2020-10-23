@@ -123,6 +123,7 @@ def run(args):
         features = []
         for i in range(X_train.shape[0]):
             model.train(
+                i,
                 X_train[i],
                 y_train[i],
                 X_test[i],
@@ -131,9 +132,7 @@ def run(args):
                 batch_size=args.batch_size,
                 n=args.n,
             )
-            X_train_features = model.bottleneck(
-                X_train[i], X_test[i], model.bottleneck_layer
-            )
+            X_train_features = model.bottleneck(X_train[i], X_test[i])
             model.reset_weights()
 
             features.append(X_train_features)
