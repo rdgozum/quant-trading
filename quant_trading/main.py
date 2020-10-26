@@ -2,6 +2,7 @@
 import os
 import sys
 import argparse
+import numpy as np
 import pickle
 
 
@@ -14,7 +15,11 @@ from quant_trading.models.autoencoders import (
     LSTMAutoEncoder,
     DeepAutoEncoder,
 )
-from quant_trading.visualization.clustering import DBSCANClustering
+from quant_trading.visualization.clustering import (
+    DBSCANClustering,
+    optimal_epsilon,
+    optimal_min_samples,
+)
 
 from quant_trading import settings
 
@@ -58,6 +63,12 @@ def parse_args():
         help="perform clustering",
     )
     parser.add_argument(
+        "--get-optimal-epsilon",
+        dest="get_optimal_epsilon",
+        action="store_true",
+        help="determine the optimal epsilon from k-distance elbow plot",
+    )
+    parser.add_argument(
         "--model",
         dest="model",
         default="basic_autoencoder",
@@ -76,6 +87,12 @@ def parse_args():
         default=128,
         type=int,
         help="number of training examples utilized in one iteration (default: 128)",
+    )
+    parser.add_argument(
+        "--epsilon",
+        dest="epsilon",
+        type=float,
+        help="radius of neighborhood around the points during clustering",
     )
     parser.add_argument(
         "--n", dest="n", type=int, help="number of windows to display",
@@ -157,8 +174,18 @@ def run(args):
         with open(settings.results(f"{filename}-features.pkl"), "rb") as pickle_file:
             features = pickle.load(pickle_file)
 
-        clustering = DBSCANClustering()
-        clustering.run(features)
+        with open(
+            settings.results(f"symbols-{start_date}_{end_date}.pkl"), "rb"
+        ) as pickle_file:
+            symbols = pickle.load(pickle_file)
+
+        features = np.asarray(features, dtype=np.float32)
+        min_samples = optimal_min_samples(features)
+        if args.find_optimal_epsilon:
+            optimal_epsilon(features, min_samples)
+        else:
+            dbscan = DBSCANClustering(args.epsilon, min_samples)
+            dbscan.run(features, symbols)
 
 
 if __name__ == "__main__":
