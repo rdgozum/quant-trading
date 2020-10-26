@@ -104,6 +104,7 @@ def run(args):
     if args.do_extract_from_file:
         print("Read from csv file...")
         df = stock_data.output_reader(f"data-{start_date}_{end_date}.csv")
+        df = df.set_index("Date")
         print(df.head())
 
         X_train, y_train, X_test, y_test = preprocessor.run(df)

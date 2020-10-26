@@ -41,9 +41,7 @@ def run(df):
     df_train, df_test = train_test_split(df, test_size=0.2, shuffle=False)
 
     # Normalize
-    columns = df.drop("Date", axis=1).columns.tolist()
-    df_train.drop("Date", inplace=True, axis=1)
-    df_test.drop("Date", inplace=True, axis=1)
+    columns = df.columns.tolist()
     df_train, df_test = normalize(columns, df_train, df_test)
 
     # Reshape
