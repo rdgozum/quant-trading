@@ -1,5 +1,4 @@
 import numpy as np
-import random
 from keras.layers import (
     BatchNormalization,
     Dense,
@@ -87,7 +86,7 @@ class AutoEncoder:
 
 
 class LSTMAutoEncoder(AutoEncoder):
-    def __init__(self, timesteps=30, input_dim=1, encoding_dim=8, drop_prob=0.3):
+    def __init__(self, timesteps=30, input_dim=1, encoding_dim=3, drop_prob=0.3):
         self.model_name = "lstm_autoencoder"
         self.bottleneck_layer = 0
         self.enable = True
@@ -105,7 +104,7 @@ class LSTMAutoEncoder(AutoEncoder):
 
 
 class BasicAutoEncoder(AutoEncoder):
-    def __init__(self, timesteps=30, input_dim=1, encoding_dim=8, drop_prob=0.3):
+    def __init__(self, timesteps=30, input_dim=1, encoding_dim=3, drop_prob=0.3):
         self.model_name = "basic_autoencoder"
         self.bottleneck_layer = 0
         self.enable = False
@@ -120,7 +119,7 @@ class BasicAutoEncoder(AutoEncoder):
 
 
 class DeepAutoEncoder(AutoEncoder):
-    def __init__(self, timesteps=30, input_dim=1, encoding_dim=8, drop_prob=0.3):
+    def __init__(self, timesteps=30, input_dim=1, encoding_dim=3, drop_prob=0.3):
         self.model_name = "deep_autoencoder"
         self.bottleneck_layer = 2
         self.enable = False
