@@ -98,12 +98,19 @@ def run(args):
         df = stock_data.extract_range(start_date, end_date, indicators, symbols)
         print(df.head())
 
+        symbols = []
+        for i in df.columns.tolist():
+            x = i.split(" ")
+            if x[0] not in symbols:
+                symbols.append(x[0])
+        stock_data.symbols = symbols
+
         print("Save to csv file...")
-        stock_data.output_writer(df, f"data-{start_date}_{end_date}.csv")
+        stock_data.output_writer(df, f"{start_date}_{end_date}")
 
     if args.do_extract_from_file:
         print("Read from csv file...")
-        df = stock_data.output_reader(f"data-{start_date}_{end_date}.csv")
+        df, symbols = stock_data.output_reader(f"{start_date}_{end_date}")
         df = df.set_index("Date")
         print(df.head())
 
