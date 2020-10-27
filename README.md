@@ -4,7 +4,7 @@ Python trading and backtesting platform.
 
 ## About
 - Utilizes *pandas_datareader* library to extract stock price information about the S&P 500 companies from yahoo finance.
-- Trains an AutoEncoder to do dimensionality reduction (i.e. learn compressed representations of the time series samples).
+- Trains an AutoEncoder to perform dimensionality reduction (i.e. learn the compressed representations of time series samples).
 - Uses KNN and DBSCAN algorithms to discover clusters among the samples for use in the pairs trading strategy later.
 - TODOs: Trading and Backtesting
 

@@ -13,7 +13,7 @@ from keras.models import Sequential, Model
 from keras.optimizers import Adam
 from keras.initializers import GlorotUniform, Zeros
 
-from quant_trading.models import output_writer
+from quant_trading.models.model_utils import plot_autoencoder
 
 
 class AutoEncoder:
@@ -43,7 +43,7 @@ class AutoEncoder:
 
         # Plot the results
         filename = self.model_name + "-" + str(i)
-        self.plot(X_train, X_train_pred, n, filename)
+        plot_autoencoder(X_train, X_train_pred, n, filename)
 
     def bottleneck(self, X_train, X_test):
         standalone_encoder = Model(
@@ -79,10 +79,6 @@ class AutoEncoder:
             X_test = np.reshape(X_test, X_test.shape + (1,))
 
         return X_train, X_test
-
-    @staticmethod
-    def plot(X_train, X_train_pred, n, filename):
-        output_writer.plot_autoencoder(X_train, X_train_pred, n, filename)
 
 
 class LSTMAutoEncoder(AutoEncoder):

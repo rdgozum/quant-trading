@@ -1,10 +1,6 @@
-import pickle
 import pandas as pd
 import pandas_datareader as dr
-
 from datetime import datetime
-
-from quant_trading import settings
 
 
 class StockDataset:
@@ -12,29 +8,20 @@ class StockDataset:
 
     def __init__(self):
         self.indicators = ["High", "Low", "Open", "Close", "Volume", "Adj Close"]
-        self._symbols = self.read_df(field="Symbol")
+        self.symbols = self._read_df(field="Symbol")
 
-    @property
-    def symbols(self):
-        return self._symbols
+    def _read_df(self, field):
+        df = pd.read_html(self.URL)[0]
 
-    @symbols.setter
-    def symbols(self, value):
-        self._symbols = value
+        return df.loc[:, field].tolist()
 
     def get_sector_from_symbol(self, symbol):
         df = pd.read_html(self.URL)[0]
-        print(df)
 
         filter = df["Symbol"] == symbol
         sector = df.loc[filter, "GICS Sector"].item()
 
         return sector
-
-    def read_df(self, field):
-        df = pd.read_html(self.URL)[0]
-
-        return df.loc[:, field].tolist()
 
     def extract_range(
         self, start_date, end_date, indicators=None, symbols=None, drop_threshold=0.90
@@ -42,7 +29,7 @@ class StockDataset:
         if indicators is None:
             indicators = self.indicators
         if symbols is None:
-            symbols = self._symbols
+            symbols = self.symbols
 
         start_date = datetime.strptime(start_date, "%Y-%m-%d")
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
@@ -64,26 +51,14 @@ class StockDataset:
         df.dropna(axis="columns", thresh=df.shape[0] * drop_threshold, inplace=True)
         df.sort_index(axis="columns", inplace=True)
 
+        self._update_symbols(df)
+
         return df
 
-    def output_reader(self, date_range):
-        # reading dataframe
-        df_path = settings.results(f"df-{date_range}.csv")
-        df = pd.read_csv(df_path)
-
-        # reading symbols
-        symbols_path = settings.results(f"symbols-{date_range}.pkl")
-        with open(symbols_path, "rb") as pickle_file:
-            symbols = pickle.load(pickle_file)
-
-        return df, symbols
-
-    def output_writer(self, df, date_range):
-        # saving dataframe
-        df_path = settings.results(f"df-{date_range}.csv")
-        df.to_csv(df_path)
-
-        # saving symbols
-        symbols_path = settings.results(f"symbols-{date_range}.pkl")
-        with open(symbols_path, "wb") as pickle_file:
-            pickle.dump(self._symbols, pickle_file)
+    def _update_symbols(self, df):
+        symbols = []
+        for i in df.columns.tolist():
+            x = i.split(" ")
+            if x[0] not in symbols:
+                symbols.append(x[0])
+        self.symbols = symbols

@@ -1,6 +1,7 @@
 import math
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+import pickle
 
 from quant_trading import settings
 
@@ -35,3 +36,25 @@ def plot_autoencoder(X, X_pred, n, filename):
     path = settings.results(filename)
     plt.savefig(path, bbox_inches="tight", dpi=200)
     plt.close()
+
+
+def write_features(features, model_name, start_date, end_date):
+    date_range = f"{start_date}_{end_date}"
+
+    with open(
+        settings.results(f"features-{model_name}-{date_range}.pkl"), "wb"
+    ) as pickle_file:
+        pickle.dump(features, pickle_file)
+
+
+def read_features(model_name, start_date, end_date):
+    date_range = f"{start_date}_{end_date}"
+
+    with open(
+        settings.results(f"features-{model_name}-{date_range}.pkl"), "rb"
+    ) as pickle_file:
+        features = pickle.load(pickle_file)
+
+    features = np.asarray(features, dtype=np.float32)
+
+    return features
