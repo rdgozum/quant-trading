@@ -5,9 +5,13 @@ from sklearn.neighbors import NearestNeighbors
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+from quant_trading import settings
+
 
 class DBSCANClustering:
     def __init__(self, epsilon, min_samples):
+        self.epsilon = epsilon
+        self.min_samples = min_samples
         self.dbscan = DBSCAN(eps=epsilon, min_samples=min_samples)
 
     def run(self, features, symbols):
@@ -43,18 +47,18 @@ class DBSCANClustering:
                 marker="o",
                 color=col,
                 alpha=1.0,
-                linewidths=1.5,
             )
 
+        plt.title(
+            "Epsilon: %.2f, MinPts: %d\n No. of clusters: %d\n No. of noise points: %d "
+            % (self.epsilon, self.min_samples, n_clusters_, n_noise_)
+        )
         ax.set_xlabel("x axis")
         ax.set_ylabel("y axis")
         ax.set_zlabel("z axis")
 
-        plt.title(
-            "Number of clusters: %d\n Number of noise points: %d "
-            % (n_clusters_, n_noise_)
-        )
-        plt.show()
+        filename = settings.results("DBSCAN Clusters")
+        plt.savefig(filename, bbox_inches="tight", dpi=200)
 
 
 def optimal_epsilon(features, min_samples):
@@ -67,7 +71,13 @@ def optimal_epsilon(features, min_samples):
     distances = np.sort(distances, axis=0)
     distances = distances[:, 1]
     plt.plot(distances)
-    plt.show()
+
+    plt.title("K-distance Graph")
+    plt.xlabel("Data points sorted by distance")
+    plt.ylabel("Epsilon")
+
+    filename = settings.results("K-distance Graph")
+    plt.savefig(filename, bbox_inches="tight", dpi=200)
 
 
 def optimal_min_samples(features):
