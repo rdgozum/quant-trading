@@ -41,9 +41,7 @@ def run(df):
     df_train, df_test = train_test_split(df, test_size=0.2, shuffle=False)
 
     # Normalize
-    columns = df.drop("Date", axis=1).columns.tolist()
-    df_train.drop("Date", inplace=True, axis=1)
-    df_test.drop("Date", inplace=True, axis=1)
+    columns = df.columns.tolist()
     df_train, df_test = normalize(columns, df_train, df_test)
 
     # Reshape
@@ -51,6 +49,6 @@ def run(df):
 
     # Temporalize
     X_train, y_train = temporalize(df_train, timesteps=df_train.shape[1] - 1)
-    X_test, y_test = temporalize(df_test, timesteps=df_train.shape[1] - 1)
+    X_test, y_test = temporalize(df_test, timesteps=df_test.shape[1] - 1)
 
     return X_train, y_train, X_test, y_test
