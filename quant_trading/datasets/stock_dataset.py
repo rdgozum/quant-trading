@@ -15,13 +15,15 @@ class StockDataset:
 
         return df.loc[:, field].tolist()
 
-    def get_sector_from_symbol(self, symbol):
+    def get_industry_from_symbol(self, symbol):
         df = pd.read_html(self.URL)[0]
 
         filter = df["Symbol"] == symbol
-        sector = df.loc[filter, "GICS Sector"].item()
+        sector, subindustry = df.loc[
+            filter, ["GICS Sector", "GICS Sub-Industry"]
+        ].values[0]
 
-        return sector
+        return sector, subindustry
 
     def extract_range(
         self, start_date, end_date, indicators=None, symbols=None, drop_threshold=0.90
