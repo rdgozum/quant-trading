@@ -6,12 +6,14 @@ sys.path.insert(0, os.path.abspath(".."))
 
 from quant_trading.datasets import stock_dataset, preprocessor, dataset_utils
 from quant_trading.models import autoencoders, model_utils
-from quant_trading.visualizations.clustering import (
+from quant_trading.similarity import similarity_utils
+from quant_trading.similarity.clustering import (
     DBSCANClustering,
     optimal_epsilon,
     optimal_min_samples,
 )
-from quant_trading import config, settings
+from quant_trading.similarity.nearest_neighbors import KNN
+from quant_trading import config
 
 
 def run(args):
@@ -62,17 +64,26 @@ def run(args):
 
         model_utils.write_features(features, args.model, start_date, end_date)
 
-    # Clustering
-    if args.do_clustering:
+    # Similarity
+    if args.do_similarity:
         features = model_utils.read_features(args.model, start_date, end_date)
         symbols = dataset_utils.read_symbols(start_date, end_date)
 
         min_samples = optimal_min_samples(features)
-        if args.find_optimal_epsilon:
+        if args.find_epsilon:
             optimal_epsilon(features, min_samples)
         else:
+            # clustering
             dbscan = DBSCANClustering(args.epsilon, min_samples)
-            dbscan.run(features, symbols)
+            cluster_labels = dbscan.run(features, symbols)
+
+            # nearest neighbors
+            knn = KNN(k=8)
+            distances, indices = knn.run(features)
+
+            similarity_utils.write_similarity(
+                symbols, cluster_labels, distances, indices
+            )
 
 
 if __name__ == "__main__":
