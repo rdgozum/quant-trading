@@ -39,11 +39,17 @@ def run(args):
         X_train, y_train, X_test, y_test = preprocessor.run(df)
 
         if args.model == "basic_autoencoder":
-            model = autoencoders.BasicAutoEncoder(timesteps=X_train.shape[2])
+            model = autoencoders.BasicAutoEncoder(
+                timesteps=X_train.shape[2], encoding_dim=args.encoding_dim
+            )
         if args.model == "deep_autoencoder":
-            model = autoencoders.DeepAutoEncoder(timesteps=X_train.shape[2])
+            model = autoencoders.DeepAutoEncoder(
+                timesteps=X_train.shape[2], encoding_dim=args.encoding_dim
+            )
         if args.model == "lstm_autoencoder":
-            model = autoencoders.LSTMAutoEncoder(timesteps=X_train.shape[2])
+            model = autoencoders.LSTMAutoEncoder(
+                timesteps=X_train.shape[2], encoding_dim=args.encoding_dim
+            )
 
         features = []
         for i in range(X_train.shape[0]):
@@ -62,11 +68,15 @@ def run(args):
 
             features.append(X_train_features)
 
-        model_utils.write_features(features, args.model, start_date, end_date)
+        model_utils.write_features(
+            features, args.model, args.encoding_dim, start_date, end_date
+        )
 
     # Similarity
     if args.do_similarity:
-        features = model_utils.read_features(args.model, start_date, end_date)
+        features = model_utils.read_features(
+            args.model, args.encoding_dim, start_date, end_date
+        )
         symbols = dataset_utils.read_symbols(start_date, end_date)
 
         min_samples = optimal_min_samples(features)
@@ -78,11 +88,11 @@ def run(args):
             cluster_labels = dbscan.run(features, symbols)
 
             # nearest neighbors
-            knn = KNN(k=8)
+            knn = KNN(k=10)
             distances, indices = knn.run(features)
 
             similarity_utils.write_similarity(
-                symbols, cluster_labels, distances, indices
+                args.encoding_dim, symbols, cluster_labels, distances, indices
             )
 
 

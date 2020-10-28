@@ -68,6 +68,13 @@ def parse_args():
         help="training batch size (default: 128)",
     )
     parser.add_argument(
+        "--encoding-dim",
+        dest="encoding_dim",
+        default=3,
+        type=int,
+        help="encoding dimension (default: 3)",
+    )
+    parser.add_argument(
         "--epsilon", dest="epsilon", type=float, help="epsilon value for dbscan",
     )
     parser.add_argument(

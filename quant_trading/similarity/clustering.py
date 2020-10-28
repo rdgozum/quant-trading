@@ -16,7 +16,7 @@ class DBSCANClustering:
     def run(self, features, symbols):
         clustering = self.dbscan.fit(features)
 
-        self.plot(features, clustering)
+        self.plot(features, clustering)  # only works on 3d inputs
 
         return clustering.labels_
 
