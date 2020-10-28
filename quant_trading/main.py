@@ -6,12 +6,14 @@ sys.path.insert(0, os.path.abspath(".."))
 
 from quant_trading.datasets import stock_dataset, preprocessor, dataset_utils
 from quant_trading.models import autoencoders, model_utils
-from quant_trading.visualizations.clustering import (
+from quant_trading.similarity import similarity_utils
+from quant_trading.similarity.clustering import (
     DBSCANClustering,
     optimal_epsilon,
     optimal_min_samples,
 )
-from quant_trading import config, settings
+from quant_trading.similarity.nearest_neighbors import KNN
+from quant_trading import config
 
 
 def run(args):
@@ -37,11 +39,17 @@ def run(args):
         X_train, y_train, X_test, y_test = preprocessor.run(df)
 
         if args.model == "basic_autoencoder":
-            model = autoencoders.BasicAutoEncoder(timesteps=X_train.shape[2])
+            model = autoencoders.BasicAutoEncoder(
+                timesteps=X_train.shape[2], encoding_dim=args.encoding_dim
+            )
         if args.model == "deep_autoencoder":
-            model = autoencoders.DeepAutoEncoder(timesteps=X_train.shape[2])
+            model = autoencoders.DeepAutoEncoder(
+                timesteps=X_train.shape[2], encoding_dim=args.encoding_dim
+            )
         if args.model == "lstm_autoencoder":
-            model = autoencoders.LSTMAutoEncoder(timesteps=X_train.shape[2])
+            model = autoencoders.LSTMAutoEncoder(
+                timesteps=X_train.shape[2], encoding_dim=args.encoding_dim
+            )
 
         features = []
         for i in range(X_train.shape[0]):
@@ -60,19 +68,32 @@ def run(args):
 
             features.append(X_train_features)
 
-        model_utils.write_features(features, args.model, start_date, end_date)
+        model_utils.write_features(
+            features, args.model, args.encoding_dim, start_date, end_date
+        )
 
-    # Clustering
-    if args.do_clustering:
-        features = model_utils.read_features(args.model, start_date, end_date)
+    # Similarity
+    if args.do_similarity:
+        features = model_utils.read_features(
+            args.model, args.encoding_dim, start_date, end_date
+        )
         symbols = dataset_utils.read_symbols(start_date, end_date)
 
         min_samples = optimal_min_samples(features)
-        if args.find_optimal_epsilon:
+        if args.find_epsilon:
             optimal_epsilon(features, min_samples)
         else:
+            # clustering
             dbscan = DBSCANClustering(args.epsilon, min_samples)
-            dbscan.run(features, symbols)
+            cluster_labels = dbscan.run(features, symbols)
+
+            # nearest neighbors
+            knn = KNN(k=10)
+            distances, indices = knn.run(features)
+
+            similarity_utils.write_similarity(
+                args.encoding_dim, symbols, cluster_labels, distances, indices
+            )
 
 
 if __name__ == "__main__":

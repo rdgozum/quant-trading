@@ -38,20 +38,22 @@ def plot_autoencoder(X, X_pred, n, filename):
     plt.close()
 
 
-def write_features(features, model_name, start_date, end_date):
+def write_features(features, model_name, encoding_dim, start_date, end_date):
     date_range = f"{start_date}_{end_date}"
 
     with open(
-        settings.results(f"features-{model_name}-{date_range}.pkl"), "wb"
+        settings.results(f"dim{encoding_dim}-features-{model_name}-{date_range}.pkl"),
+        "wb",
     ) as pickle_file:
         pickle.dump(features, pickle_file)
 
 
-def read_features(model_name, start_date, end_date):
+def read_features(model_name, encoding_dim, start_date, end_date):
     date_range = f"{start_date}_{end_date}"
 
     with open(
-        settings.results(f"features-{model_name}-{date_range}.pkl"), "rb"
+        settings.results(f"dim{encoding_dim}-features-{model_name}-{date_range}.pkl"),
+        "rb",
     ) as pickle_file:
         features = pickle.load(pickle_file)
 

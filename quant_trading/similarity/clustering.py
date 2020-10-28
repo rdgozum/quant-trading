@@ -1,10 +1,9 @@
 import numpy as np
-
 from sklearn.cluster import DBSCAN
-from sklearn.neighbors import NearestNeighbors
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+from quant_trading.similarity.nearest_neighbors import KNN
 from quant_trading import settings
 
 
@@ -17,7 +16,9 @@ class DBSCANClustering:
     def run(self, features, symbols):
         clustering = self.dbscan.fit(features)
 
-        self.plot(features, clustering)
+        self.plot(features, clustering)  # only works on 3d inputs
+
+        return clustering.labels_
 
     def plot(self, features, clustering):
         labels = clustering.labels_
@@ -63,9 +64,8 @@ class DBSCANClustering:
 
 def optimal_epsilon(features, min_samples):
     # Calculate the average distance between each point
-    neighbors = NearestNeighbors(n_neighbors=min_samples)
-    neighbors_fit = neighbors.fit(features)
-    distances, indices = neighbors_fit.kneighbors(features)
+    knn = KNN(k=min_samples)
+    distances, indices = knn.run(features)
 
     # Sort distance values in ascending order and plot
     distances = np.sort(distances, axis=0)
