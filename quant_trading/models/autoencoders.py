@@ -24,7 +24,7 @@ class AutoEncoder:
         y_train,
         X_test,
         y_test,
-        epochs=100,
+        epochs=300,
         batch_size=128,
         n=None,
         shuffle=False,
